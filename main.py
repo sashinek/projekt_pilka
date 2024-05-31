@@ -1,6 +1,6 @@
 # Projekt: Piłka
 # Autor: Oliwier Chudzicki
-# Data: 30.05.2024 r.
+# Data: 31.05.2024 r.
 
 import sys
 from PyQt5.QtWidgets import *
@@ -10,33 +10,90 @@ class OknoGry(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Projekt pilka - poziom 1')  # Ustawia tytuł okna
-        self.resize(750, 500)  # Ustawia początkowy rozmiar okna
-        self.setMinimumSize(650, 400)  # Ustawia minimalny rozmiar okna
-
-        # Definiuje tablicę z elementami poziomu
-        self.poziom = [
-            ['P', 2, 3, 3, 3, 3, 3, 3, 3, 3],
-            [1, 2, 3, 3, 2, 2, 2, 2, 2, 2],
-            [1, 2, 2, 2, 2, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 2, 2, 2, 1],
-            [2, 2, 2, 2, 2, 2, 2, 3, 2, 'B']
+        # Definicja poziomów
+        self.poziomy = [
+            {
+                "numer": 1,
+                "trudnosc": "Łatwy",
+                "plansza": [
+                    ['P', 2, 3, 3, 3, 3, 3, 3, 3, 3],
+                    [1, 2, 3, 3, 2, 2, 2, 2, 2, 2],
+                    [1, 2, 2, 2, 2, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 2, 2, 2, 1],
+                    [2, 2, 2, 2, 2, 2, 2, 3, 2, 'B']
+                ]
+            },
+            {
+                "numer": 2,
+                "trudnosc": "Średni",
+                "plansza": [
+                    ['P', 2, 2, 1, 1, 1, 2, 'B', 1, 1],
+                    [1, 2, 2, 1, 2, 1, 2, 2, 2, 1],
+                    [1, 1, 2, 1, 2, 1, 1, 1, 1, 1],
+                    [2, 1, 2, 1, 2, 2, 2, 2, 2, 2],
+                    [2, 1, 1, 1, 2, 3, 3, 3, 3, 3]
+                ]
+            },
+            {
+                "numer": 3,
+                "trudnosc": "Trudny",
+                "plansza": [
+                    ['P', 1, 2, 2, 2, 2, 1, 1, 1, 2],
+                    [2, 1, 2, 2, 1, 1, 1, 2, 1, 2],
+                    [1, 1, 2, 1, 1, 2, 2, 2, 1, 1],
+                    [1, 2, 2, 1, 2, 2, 3, 2, 2, 1],
+                    [1, 2, 2, 1, 2, 3, 3, 2, 1, 1],
+                    [1, 1, 1, 1, 2, 3, 3, 2, 1, 2],
+                    [2, 2, 2, 2, 2, 3, 3, 'B', 1, 2]
+                ]
+            },
+            {
+                "numer": 4,
+                "trudnosc": "Bardzo trudny",
+                "plansza": [
+                    ['P', 1, 1, 2, 2, 2, 2, 2, 2, 3],
+                    [2, 2, 1, 2, 2, 1, 1, 1, 2, 2],
+                    [2, 1, 1, 2, 1, 1, 2, 1, 1, 2],
+                    [2, 1, 2, 2, 1, 2, 2, 2, 1, 2],
+                    [2, 1, 1, 1, 1, 2, 2, 1, 1, 2],
+                    [2, 2, 2, 2, 2, 2, 2, 1, 2, 2],
+                    ['B', 1, 2, 2, 3, 3, 2, 1, 1, 2],
+                    [2, 1, 1, 2, 2, 2, 2, 2, 1, 1],
+                    [2, 2, 1, 2, 1, 1, 1, 2, 2, 1],
+                    [3, 2, 1, 1, 1, 2, 1, 1, 1, 1]
+                ]
+            }
         ]
 
-        # Pobiera startową pozycję piłki z tablicy poziomu
+        self.aktualny_poziom_index = 0
+        self.setWindowTitle(f'Projekt pilka - poziom {self.poziomy[self.aktualny_poziom_index]["numer"]}')  # Ustawia tytuł okna
+        self.resize(750, 500)  # Ustawia początkowy rozmiar okna
+        self.setMinimumSize(650, 400)   # Ustawia minimalny rozmiar okna
+
+        self.inicjalizuj_poziom()
+
+    def inicjalizuj_poziom(self):
+        self.poziom = self.poziomy[self.aktualny_poziom_index]["plansza"]
         self.pilka_startowa_pozycja = self.znajdz_pilke()
         self.pilka_pozycja = self.pilka_startowa_pozycja  # Ustawia aktualną pozycję piłki na startową
+
+        self.usun_stary_layout()  # Usuwa stary layout, jeśli istnieje
 
         self.uklad_poziomu = QGridLayout()  # Tworzy układ siatki dla poziomu gry
         self.uklad_poziomu.setContentsMargins(10, 10, 10, 10)  # Ustawia marginesy ukladu
         self.uklad_poziomu.setSpacing(0)  # Ustawia odstęp między widgetami
         self.stworz_widgety_poziomu()  # Wywołuje metodę tworzącą widgety poziomu
 
-        main_layout = QVBoxLayout()  # Tworzy główny układ pionowy
-        main_layout.addLayout(self.uklad_poziomu)  # Dodaje układ poziomu do głównego układu
-        main_layout.setContentsMargins(10, 10, 10, 10)  # Ustawia marginesy dla głównego układu
+        uklad_glowny = QVBoxLayout()  # Tworzy główny układ pionowy
+        uklad_glowny.addLayout(self.uklad_poziomu)  # Dodaje układ poziomu do głównego układu
+        uklad_glowny.setContentsMargins(10, 10, 10, 10)  # Ustawia marginesy dla głównego układu
+        self.setLayout(uklad_glowny)  # Ustawia główny układ jako układ okna
 
-        self.setLayout(main_layout)  # Ustawia główny układ jako układ okna
+    def usun_stary_layout(self):
+        # Usuwa stary layout, jeśli istnieje
+        stary_uklad = self.layout()
+        if stary_uklad:
+            QWidget().setLayout(stary_uklad)
 
     def znajdz_pilke(self):
         # Znajduje pozycję startową piłki 'P' w tablicy poziomu
@@ -47,7 +104,7 @@ class OknoGry(QWidget):
         return (0, 0)  # Domyślna wartość, jeśli piłka nie zostanie znaleziona
 
     def stworz_widgety_poziomu(self):
-        # Tworzy widgety poziomu na podstawie tablicy self.poziom
+        # Tworzy widgety poziomu na podstawie self.poziomy
         for i, wiersz in enumerate(self.poziom):
             for j, komorka in enumerate(wiersz):
                 if komorka == 'P':  # Jeśli komórka ma wartość 'P', to tworzy piłkę
@@ -104,8 +161,12 @@ class OknoGry(QWidget):
         msg_box.setText("Gratulacje! Ukończyłeś poziom.")
         msg_box.setStandardButtons(QMessageBox.Retry | QMessageBox.Close)   # Dodaje przyciski "Od nowa" i "Zamknij"
         next_level_button = msg_box.addButton("Następny poziom", QMessageBox.AcceptRole)    # Dodaje przycisk "Następny poziom"
-        next_level_button.setDisabled(True)
-        next_level_button.setToolTip("Kiedyś")
+
+        # Blokuje przycisk w przypadku braku kolejnych poziomów
+        if self.aktualny_poziom_index >= len(self.poziomy) - 1:
+            next_level_button.setDisabled(True)
+            next_level_button.setToolTip("Kiedyś")
+
         # Zmienia etykiety przycisków "Od nowa" i "Zamknij"
         msg_box.button(QMessageBox.Retry).setText("Od nowa")
         msg_box.button(QMessageBox.Close).setText("Zamknij")
@@ -117,17 +178,20 @@ class OknoGry(QWidget):
         # Jeśli użytkownik wybrał "Zamknij", zamyka aplikację
         elif result == QMessageBox.Close:
             QApplication.instance().quit()
+        # Jeśli użytkownik wybrał "Następny poziom", przenosi na nowy poziom
+        elif result == QMessageBox.AcceptRole:
+            self.nastepny_poziom()
 
     def reset_poziom(self):
-        self.poziom = [  # Resetuje tablicę z elementami poziomu
-            ['P', 2, 3, 3, 3, 3, 3, 3, 3, 3],
-            [1, 2, 3, 3, 2, 2, 2, 2, 2, 2],
-            [1, 2, 2, 2, 2, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 2, 2, 2, 1],
-            [2, 2, 2, 2, 2, 2, 2, 3, 2, 'B']
-        ]
+        self.poziom = self.poziomy[self.aktualny_poziom_index]["plansza"]   # Resetuje planszę gry do aktualnego poziomu
         self.pilka_pozycja = self.pilka_startowa_pozycja  # Resetuje pozycję piłki
         self.odswiez_uklad()
+
+    def nastepny_poziom(self):
+        if self.aktualny_poziom_index < len(self.poziomy) - 1:
+            self.aktualny_poziom_index += 1
+            self.setWindowTitle(f'Projekt pilka - poziom {self.poziomy[self.aktualny_poziom_index]["numer"]}')
+            self.inicjalizuj_poziom()
 
 class OknoSterowania(QWidget):
     def __init__(self, okno_gry):
