@@ -6,9 +6,15 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
+
 class OknoGry(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.poziom = None
+        self.pilka_startowa_pozycja = None
+        self.pilka_pozycja = None
+        self.uklad_poziomu = None
 
         # Definicja poziomów
         self.poziomy = [
@@ -66,9 +72,10 @@ class OknoGry(QWidget):
         ]
 
         self.aktualny_poziom_index = 0
-        self.setWindowTitle(f'Projekt pilka - poziom {self.poziomy[self.aktualny_poziom_index]["numer"]}')  # Ustawia tytuł okna
+        self.setWindowTitle(
+            f'Projekt pilka - poziom {self.poziomy[self.aktualny_poziom_index]["numer"]}')  # Ustawia tytuł okna
         self.resize(750, 500)  # Ustawia początkowy rozmiar okna
-        self.setMinimumSize(650, 400)   # Ustawia minimalny rozmiar okna
+        self.setMinimumSize(650, 400)  # Ustawia minimalny rozmiar okna
 
         self.inicjalizuj_poziom()
 
@@ -100,13 +107,14 @@ class OknoGry(QWidget):
         for i, wiersz in enumerate(self.poziom):
             for j, komorka in enumerate(wiersz):
                 if komorka == 'P':
-                    return (i, j)
-        return (0, 0)  # Domyślna wartość, jeśli piłka nie zostanie znaleziona
+                    return i, j
+        return 0, 0  # Domyślna wartość, jeśli piłka nie zostanie znaleziona
 
     def stworz_widgety_poziomu(self):
         # Tworzy widgety poziomu na podstawie self.poziomy
         for i, wiersz in enumerate(self.poziom):
             for j, komorka in enumerate(wiersz):
+                widget = None
                 if komorka == 'P':  # Jeśli komórka ma wartość 'P', to tworzy piłkę
                     widget = QLabel('⚽️', self)
                 elif komorka == 'B':  # Jeśli komórka ma wartość 'B', to tworzy bramkę
@@ -117,8 +125,8 @@ class OknoGry(QWidget):
                     widget = QLabel('🪨', self)
                 elif komorka == 3:  # Jeśli komórka ma wartość 3, to tworzy trawę
                     widget = QLabel('🌿', self)
-                widget.setAlignment(Qt.AlignCenter) # Ustawia wyrównanie do środka
-                self.uklad_poziomu.addWidget(widget, i, j) # Dodaje widget do układu siatki na pozycji (i, j)
+                widget.setAlignment(Qt.AlignCenter)  # Ustawia wyrównanie do środka
+                self.uklad_poziomu.addWidget(widget, i, j)  # Dodaje widget do układu siatki na pozycji (i, j)
 
     def ruch_pilki(self, nowa_pozycja):
         stara_pozycja = self.pilka_pozycja
@@ -156,11 +164,12 @@ class OknoGry(QWidget):
         self.stworz_widgety_poziomu()
 
     def wyswietl_wiadomosc_wygranej(self):
-        msg_box = QMessageBox() # Tworzy okno komunikatu
+        msg_box = QMessageBox()  # Tworzy okno komunikatu
         msg_box.setWindowTitle("Wygrana!")
         msg_box.setText("Gratulacje! Ukończyłeś poziom.")
-        msg_box.setStandardButtons(QMessageBox.Retry | QMessageBox.Close)   # Dodaje przyciski "Od nowa" i "Zamknij"
-        next_level_button = msg_box.addButton("Następny poziom", QMessageBox.AcceptRole)    # Dodaje przycisk "Następny poziom"
+        msg_box.setStandardButtons(QMessageBox.Retry | QMessageBox.Close)  # Dodaje przyciski "Od nowa" i "Zamknij"
+        next_level_button = msg_box.addButton("Następny poziom",
+                                              QMessageBox.AcceptRole)  # Dodaje przycisk "Następny poziom"
 
         # Blokuje przycisk w przypadku braku kolejnych poziomów
         if self.aktualny_poziom_index >= len(self.poziomy) - 1:
@@ -170,7 +179,7 @@ class OknoGry(QWidget):
         # Zmienia etykiety przycisków "Od nowa" i "Zamknij"
         msg_box.button(QMessageBox.Retry).setText("Od nowa")
         msg_box.button(QMessageBox.Close).setText("Zamknij")
-        result = msg_box.exec_()    # Wyświetla okno komunikatu i oczekuje na jego zamknięcie
+        result = msg_box.exec_()  # Wyświetla okno komunikatu i oczekuje na jego zamknięcie
 
         # Jeśli użytkownik wybrał "Od nowa", resetuje poziom
         if result == QMessageBox.Retry:
@@ -183,7 +192,7 @@ class OknoGry(QWidget):
             self.nastepny_poziom()
 
     def reset_poziom(self):
-        self.poziom = self.poziomy[self.aktualny_poziom_index]["plansza"]   # Resetuje planszę gry do aktualnego poziomu
+        self.poziom = self.poziomy[self.aktualny_poziom_index]["plansza"]  # Resetuje planszę gry do aktualnego poziomu
         self.pilka_pozycja = self.pilka_startowa_pozycja  # Resetuje pozycję piłki
         self.odswiez_uklad()
 
@@ -192,6 +201,7 @@ class OknoGry(QWidget):
             self.aktualny_poziom_index += 1
             self.setWindowTitle(f'Projekt pilka - poziom {self.poziomy[self.aktualny_poziom_index]["numer"]}')
             self.inicjalizuj_poziom()
+
 
 class OknoSterowania(QWidget):
     def __init__(self, okno_gry):
@@ -236,6 +246,7 @@ class OknoSterowania(QWidget):
     def ruch_prawo(self):
         x, y = self.okno_gry.pilka_pozycja
         self.okno_gry.ruch_pilki((x, y + 1))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
