@@ -167,7 +167,7 @@ class OknoGry(QWidget):
         msg_box = QMessageBox()  # Tworzy okno komunikatu
         msg_box.setWindowTitle("Wygrana!")
         msg_box.setText("Gratulacje! Ukończyłeś poziom.")
-        msg_box.setStandardButtons(QMessageBox.Retry | QMessageBox.Close)  # Dodaje przyciski "Od nowa" i "Zamknij"
+        msg_box.setStandardButtons(QMessageBox.Close)  # Dodaje przycisk "Zamknij"
         next_level_button = msg_box.addButton("Następny poziom",
                                               QMessageBox.AcceptRole)  # Dodaje przycisk "Następny poziom"
 
@@ -176,25 +176,16 @@ class OknoGry(QWidget):
             next_level_button.setDisabled(True)
             next_level_button.setToolTip("Kiedyś")
 
-        # Zmienia etykiety przycisków "Od nowa" i "Zamknij"
-        msg_box.button(QMessageBox.Retry).setText("Od nowa")
+        # Zmienia etykiete przycisku Zamknij"
         msg_box.button(QMessageBox.Close).setText("Zamknij")
         result = msg_box.exec_()  # Wyświetla okno komunikatu i oczekuje na jego zamknięcie
 
-        # Jeśli użytkownik wybrał "Od nowa", resetuje poziom
-        if result == QMessageBox.Retry:
-            self.reset_poziom()
         # Jeśli użytkownik wybrał "Zamknij", zamyka aplikację
-        elif result == QMessageBox.Close:
+        if result == QMessageBox.Close:
             QApplication.instance().quit()
         # Jeśli użytkownik wybrał "Następny poziom", przenosi na nowy poziom
         elif result == QMessageBox.AcceptRole:
             self.nastepny_poziom()
-
-    def reset_poziom(self):
-        self.poziom = self.poziomy[self.aktualny_poziom_index]["plansza"]  # Resetuje planszę gry do aktualnego poziomu
-        self.pilka_pozycja = self.pilka_startowa_pozycja  # Resetuje pozycję piłki
-        self.odswiez_uklad()
 
     def nastepny_poziom(self):
         if self.aktualny_poziom_index < len(self.poziomy) - 1:
